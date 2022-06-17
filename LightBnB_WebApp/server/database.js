@@ -25,7 +25,7 @@ pool.query(`SELECT title FROM properties LIMIT 10;`).then(response => {console.l
  * @param {String} email The email of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithEmail = function(email) {
+const getUserWithEmail = function (email) {
   let user;
   for (const userId in users) {
     user = users[userId];
@@ -44,7 +44,7 @@ exports.getUserWithEmail = getUserWithEmail;
  * @param {string} id The id of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithId = function(id) {
+const getUserWithId = function (id) {
   return Promise.resolve(users[id]);
 }
 exports.getUserWithId = getUserWithId;
@@ -83,17 +83,17 @@ exports.getAllReservations = getAllReservations;
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = function(options, limit = 10) {
-  pool
-  .query(
-    `SELECT * FROM properties LIMIT $1`,
-    [ limit ])
-  .then((result) => {
-    console.log(result.rows);
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
+ const getAllProperties = function(options, limit = 10) {
+  const queryString = `SELECT * FROM properties LIMIT $1`;
+  return pool
+    .query(queryString, [limit])
+    .then((result) => {
+      console.log(result.rows);
+      return result.rows;
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 };
 exports.getAllProperties = getAllProperties;
 
