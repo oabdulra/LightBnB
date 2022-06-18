@@ -13,10 +13,10 @@ const pool = new Pool({
 //helper function to determine the type of operator needed
 const queryOp = (queryParams) => {
   let queryString = ` `;
-  if (queryParams.length >= 1) {
-    queryString += ` AND `;
+  if (queryParams.length > 1) {
+    queryString += `AND `;
   } else {
-    queryString += ` WHERE `;
+    queryString += `WHERE `;
   }
   return queryString;
 }
@@ -138,7 +138,7 @@ exports.getAllReservations = getAllReservations;
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = function(options, limit) {
+const getAllProperties = function(options, limit ) {
 
   const queryParams = [];
 
@@ -146,7 +146,7 @@ const getAllProperties = function(options, limit) {
   let queryString = `
   SELECT properties.*, avg(property_reviews.rating) as average_rating
   FROM properties
-  JOIN property_reviews ON properties.id = property_id`;
+  LEFT OUTER JOIN property_reviews ON properties.id = property_id`;
 
   // if the search option has a city, this if statement will add it to the parameters
   // and then append the search to the querystring set up earlier
@@ -158,7 +158,7 @@ const getAllProperties = function(options, limit) {
   // if the search option has an owner in its parameters, 
   // this if statement will append the search query with properties from only this owner
   if (options.owner_id) {
-    queryParams.push(`%${options.owner_id}%`);
+    queryParams.push(`${options.owner_id}`);
     queryString += `${queryOp(queryParams)} owner_id = $${queryParams.length} `;
 
   }
@@ -166,38 +166,38 @@ const getAllProperties = function(options, limit) {
   // if the search option has a minimum price,
   // it will append the search to the querystring set up earlier
   if (options.minimum_price_per_night) {
-    queryParams.push(`%${options.minimum_price_per_night * 100}`);
+    queryParams.push(`${options.minimum_price_per_night * 100}`);
     queryString += `${queryOp(queryParams)} cost_per_night >=  $${queryParams.length}`;
   }
 
   // if the search option has a maximum price,
   // it will append the search to the querystring set up earlier
   if (options.maximum_price_per_night) {
-    queryParams.push(`%${options.maximum_price_per_night * 100}`);
+    queryParams.push(`${options.maximum_price_per_night * 100}`);
     queryString += `${queryOp(queryParams)} cost_per_night <=  $${queryParams.length}`;
   }
 
-  queryString += `GROUP BY properties.id`;
 
+  queryString += ` GROUP BY properties.id`;
 
   // if search option has a minimum rating
   // it will append the search to the querystring set up earlier
   if (options.minimum_rating) {
-    queryParams.push(`%${options.minimum_rating}`);
-    queryString += `HAVING avg(property_reviews.rating) >=  $${queryParams.length}`;
+    console.log(options.minimum_rating);
+    queryParams.push(`${options.minimum_rating}`);
+    queryString += ` HAVING avg(property_reviews.rating) >=  $${queryParams.length}`;
   }
 
   
-  queryParams.push(limit);
+  
   queryString += `
   ORDER BY cost_per_night
-  LIMIT $${queryParams.length};`;
-
+  LIMIT ${limit};`;
+  console.log(queryString);
   //returns query as a final step
   return pool.query(queryString, queryParams)
-    .then((result) => {
-       result.rows;
-    })
+    .then((result) =>
+        result.rows )
     .catch((err) => {
       console.log(err.message);
     });
@@ -213,7 +213,7 @@ exports.getAllProperties = getAllProperties;
 const addProperty = function(property) {
   const queryString = ` 
       INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
       RETURNING *`;
   
   const queryParams = [
@@ -237,7 +237,8 @@ const addProperty = function(property) {
    return pool.query(queryString, queryParams)
    .then((result) => {
      console.log('insert worked');
-     return result.rows.length;
+     //return result.rows.length;
+      result.rows.length;
    })
    .catch((err) => {
      console.log(err.message);
