@@ -13,7 +13,7 @@ const pool = new Pool({
 pool.connect();
 
 // the following assumes that you named your connection variable `pool`
-pool.query(`SELECT title FROM properties LIMIT 10;`).then(response => {console.log(response)})
+//pool.query(`SELECT title FROM properties LIMIT 10;`).then(response => {console.log(response)})
 
 
 
@@ -26,16 +26,18 @@ pool.query(`SELECT title FROM properties LIMIT 10;`).then(response => {console.l
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function (email) {
-  let user;
-  for (const userId in users) {
-    user = users[userId];
-    if (user.email.toLowerCase() === email.toLowerCase()) {
-      break;
-    } else {
-      user = null;
-    }
-  }
-  return Promise.resolve(user);
+ const queryString = `SELECT * FROM users WHERE users.email = $1`;
+
+ return pool
+    .query(queryString, [email])
+    .then((result) => {
+      console.log(result.rows);
+      return result.rows[0];
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+
 }
 exports.getUserWithEmail = getUserWithEmail;
 
@@ -83,7 +85,7 @@ exports.getAllReservations = getAllReservations;
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
- const getAllProperties = function(options, limit = 10) {
+ const getAllProperties = function(options, limit) {
   const queryString = `SELECT * FROM properties LIMIT $1`;
   return pool
     .query(queryString, [limit])
@@ -92,7 +94,7 @@ exports.getAllReservations = getAllReservations;
       return result.rows;
     })
     .catch((err) => {
-      console.log(err.message);
+      console.log(err.message,'here');
     });
 };
 exports.getAllProperties = getAllProperties;
