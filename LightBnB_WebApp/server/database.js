@@ -12,11 +12,11 @@ const pool = new Pool({
 
 //helper function to determine the type of operator needed
 const queryOp = (queryParams) => {
-  let queryString = ``;
+  let queryString = ` `;
   if (queryParams.length >= 1) {
-    queryString += `AND`;
+    queryString += ` AND `;
   } else {
-    queryString += `WHERE`;
+    queryString += ` WHERE `;
   }
   return queryString;
 }
@@ -146,8 +146,7 @@ const getAllProperties = function(options, limit) {
   let queryString = `
   SELECT properties.*, avg(property_reviews.rating) as average_rating
   FROM properties
-  JOIN property_reviews ON properties.id = property_id
-  `;
+  JOIN property_reviews ON properties.id = property_id`;
 
   // if the search option has a city, this if statement will add it to the parameters
   // and then append the search to the querystring set up earlier
@@ -192,8 +191,7 @@ const getAllProperties = function(options, limit) {
   queryParams.push(limit);
   queryString += `
   ORDER BY cost_per_night
-  LIMIT $${queryParams.length};
-  `;
+  LIMIT $${queryParams.length};`;
 
   //returns query as a final step
   return pool.query(queryString, queryParams)
@@ -214,33 +212,32 @@ exports.getAllProperties = getAllProperties;
  */
 const addProperty = function(property) {
   const queryString = ` 
-      INSERT INTO properties (
-     owner_id, title, description, cover_photo_url, thumbnail_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, active, province, city, country, street, post_code)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,)
       RETURNING *`;
   
   const queryParams = [
     property.owner_id,
     property.title,
     property.description,
-    property.cover_photo_url,
     property.thumbnail_photo_url,
+    property.cover_photo_url,
     property.cost_per_night,
+    property.street,
+    property.city,
+    property.province,
+    property.post_code,
+    property.country,
     property.parking_spaces,
     property.number_of_bathrooms,
     property.number_of_bedrooms,
-    property.active,
-    property.province,
-    property.city,
-    property.country,
-    property.street,
-    property.post_code
   ];
   
    //returns query as a final step
    return pool.query(queryString, queryParams)
    .then((result) => {
-     return result.rows;
+     console.log('insert worked');
+     return result.rows.length;
    })
    .catch((err) => {
      console.log(err.message);
