@@ -7,26 +7,21 @@ const pool = new Pool({
   user: 'vagrant',
   password: '123',
   host: 'localhost',
-  database: 'bootcampx'
+  database: 'lightbnb'
 });
 
-pool.connect();
-
-// the following assumes that you named your connection variable `pool`
-//pool.query(`SELECT title FROM properties LIMIT 10;`).then(response => {console.log(response)})
-
+//pool.query(`SELECT title FROM properties LIMIT 10;`).then(response => {console.log(response)});
 
 
 /// Users
-
 
 /**
  * Get a single user from the database given their email.
  * @param {String} email The email of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithEmail = function (email) {
- const queryString = `SELECT * FROM users WHERE users.email = $1`;
+const getUserWithEmail = function(email) {
+  const queryString = `SELECT * FROM users WHERE email = $1`;
 
  return pool
     .query(queryString, [email])
@@ -46,8 +41,7 @@ exports.getUserWithEmail = getUserWithEmail;
  * @param {string} id The id of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithId = function (id) {
-  
+const getUserWithId = function(id) {
   const queryString = `SELECT * FROM users WHERE id = $1`;
 
   return pool
@@ -96,7 +90,7 @@ exports.getAllReservations = getAllReservations;
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
- const getAllProperties = function(options, limit) {
+const getAllProperties = function(options, limit = 10) {
   const queryString = `SELECT * FROM properties LIMIT $1`;
   return pool
     .query(queryString, [limit])
@@ -107,7 +101,7 @@ exports.getAllReservations = getAllReservations;
     .catch((err) => {
       console.log(err.message,'here');
     });
-};
+}
 exports.getAllProperties = getAllProperties;
 
 
