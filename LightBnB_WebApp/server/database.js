@@ -72,7 +72,7 @@ const addUser =  function(user) {
   const queryString = `
   INSERT INTO users (name, email, password)
   VALUES ($1, $2, $3)
-  `;
+  RETURNING *`;
   return pool
     .query(queryString, [user.name, user.email, user.password])
     .then((result) => {
@@ -114,7 +114,7 @@ const getAllProperties = function(options, limit = 10) {
       return result.rows;
     })
     .catch((err) => {
-      console.log(err.message,'here');
+      console.log(err.message);
     });
 }
 exports.getAllProperties = getAllProperties;
