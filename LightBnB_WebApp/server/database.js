@@ -21,6 +21,8 @@ const pool = new Pool({
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function(email) {
+
+  //query in const var as a string to prevent sql injection
   const queryString = `SELECT * FROM users WHERE email = $1`;
 
  return pool
@@ -45,6 +47,8 @@ exports.getUserWithEmail = getUserWithEmail;
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function(id) {
+
+  //query in const var as a string to prevent sql injection
   const queryString = `SELECT * FROM users WHERE id = $1`;
 
   return pool
@@ -69,10 +73,13 @@ exports.getUserWithId = getUserWithId;
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser =  function(user) {
+
+  //query in const var as a string to prevent sql injection
   const queryString = `
   INSERT INTO users (name, email, password)
   VALUES ($1, $2, $3)
   RETURNING *`;
+
   return pool
     .query(queryString, [user.name, user.email, user.password])
     .then((result) => {
@@ -94,6 +101,7 @@ exports.addUser = addUser;
  */
 const getAllReservations = function(guest_id, limit = 10) {
   
+  //query in const var as a string to prevent sql injection
   const queryString = `
   SELECT reservations.*, properties.*, avg(rating) as average_rating
   FROM reservations
@@ -103,6 +111,7 @@ const getAllReservations = function(guest_id, limit = 10) {
   GROUP BY properties.id, reservations.id
   ORDER BY reservations.start_date
   LIMIT $2;`;
+
   return pool.query(queryString, [guest_id, limit])
     .then((result) => {
       return result.rows;
@@ -122,16 +131,29 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = function(options, limit) {
-  const queryString = `SELECT * FROM properties LIMIT $1`;
-  return pool
-    .query(queryString, [limit])
-    .then((result) => {
-      
-      return result.rows;
-    })
-    .catch((err) => {
-      console.log(err.message);
-    });
+
+  const queryParams = [];
+
+  //General Use query, will append to this for certain criteria
+  let queryString = `
+  SELECT properties.*, avg(property_reviews.rating) as average_rating
+  FROM properties
+  JOIN property_reviews ON properties.id = property_id
+  `;
+
+  // 3
+  if (options.city) {
+    queryParams.push(`%${options.city}%`);
+    queryString += `WHERE city LIKE $${queryParams.length} `;
+  }
+
+  // 4
+  queryParams.push(limit);
+  queryString += `
+  GROUP BY properties.id
+  ORDER BY cost_per_night
+  LIMIT $${queryParams.length};
+  `;
 }
 exports.getAllProperties = getAllProperties;
 
