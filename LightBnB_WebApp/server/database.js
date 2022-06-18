@@ -26,8 +26,11 @@ const getUserWithEmail = function(email) {
  return pool
     .query(queryString, [email])
     .then((result) => {
-      console.log(result.rows);
+      if (result.rows) {
       return result.rows[0];
+      } else {
+      return null;
+      }
     })
     .catch((err) => {
       console.log(err.message);
@@ -47,8 +50,11 @@ const getUserWithId = function(id) {
   return pool
     .query(queryString, [id])
     .then((result) => {
-      console.log(result.rows);
+      if (result.rows) {
       return result.rows[0];
+      } else {
+      return null;
+      }
     })
     .catch((err) => {
       console.log(err.message);
@@ -104,7 +110,7 @@ const getAllProperties = function(options, limit = 10) {
   return pool
     .query(queryString, [limit])
     .then((result) => {
-      console.log(result.rows);
+      
       return result.rows;
     })
     .catch((err) => {
