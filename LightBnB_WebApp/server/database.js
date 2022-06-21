@@ -183,7 +183,7 @@ const getAllProperties = function(options, limit ) {
   // if search option has a minimum rating
   // it will append the search to the querystring set up earlier
   if (options.minimum_rating) {
-    console.log(options.minimum_rating);
+    
     queryParams.push(`${options.minimum_rating}`);
     queryString += ` HAVING avg(property_reviews.rating) >=  $${queryParams.length}`;
   }
@@ -193,7 +193,7 @@ const getAllProperties = function(options, limit ) {
   queryString += `
   ORDER BY cost_per_night
   LIMIT ${limit};`;
-  console.log(queryString);
+  
   //returns query as a final step
   return pool.query(queryString, queryParams)
     .then((result) =>
