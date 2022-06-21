@@ -7,6 +7,8 @@
 ├── migrations
 ├── seeds
 └── LightBnB_WebApp
+└── README.md
+
 ```
 
 * `1_queries` contains all the queries done as required by the project
